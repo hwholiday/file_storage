@@ -12,4 +12,7 @@ var (
 	ErrMd5ChecksumInvalid       = errors.New("MD5_CHECKSUM_INVALID")         //文件的校验和与md5_checksum参数不匹配
 	ErrFileUploadCompleted      = errors.New("FILE_UPLOAD_COMPLETED")        //文件已经上传完成
 	ErrFilePartUploadCompleted  = errors.New("FILE_PART_UPLOAD_COMPLETED")   //文件分片已经上传完成
+	ErrFileIdInvalid            = errors.New("FILE_ID_INVALID")              //文件地址无效
+	ErrOffsetInvalid            = errors.New("OFFSET_INVALID")               //偏移值无效
+	ErrLimitInvalid             = errors.New("LIMIT_INVALID")                //限制值无效
 )
