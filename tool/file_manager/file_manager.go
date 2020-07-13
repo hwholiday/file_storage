@@ -10,11 +10,10 @@ type FileManager struct {
 }
 
 type FileUploadItem struct {
-	Fid   int64
-	Part  int
-	Data  []byte
-	Md5   string
-	IsEnd bool
+	Fid  int64
+	Part int
+	Data []byte
+	Md5  string
 }
 
 func NewFileManager() {
@@ -34,12 +33,21 @@ func (f *FileManager) SendFidToChan(fid int64) {
 	f.clearItem <- fid
 }
 
-func (f *FileManager) AddItem(item *FileItem) {
+func (f *FileManager) NewItem(item *FileItem) {
 	_, ok := f.fileItems.Load(item.Fid)
 	if ok {
 		return
 	}
 	f.fileItems.Store(item.Fid, item)
+}
+
+func (f *FileManager) AddItem(upItem *FileUploadItem) {
+	item, ok := f.fileItems.Load(upItem.Fid)
+	if !ok {
+		return
+	}
+	fItem := item.(*FileItem)
+	fItem.AddItem(upItem)
 }
 
 func (f *FileManager) run() {
