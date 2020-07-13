@@ -2,10 +2,10 @@ package file_manager
 
 import (
 	"bytes"
-	"file_storage/library/utils"
 	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 type FileItem struct {
@@ -19,16 +19,30 @@ type FileItem struct {
 	IsSuccess   bool  //上传完成
 	ExpiredTime int64 //到这个点没上传完成,自动删除
 	Items       map[int][]byte
+	autoTime    *time.Timer
 }
 
 var imageExName = []string{"JPG", "JPEG", "PNG"}
 
 func NewFileItem(s *FileItem) *FileItem {
 	s.IsSuccess = false
-	s.ExpiredTime = utils.GetTimeUnix() + 60*30
+	s.ExpiredTime = 60 * 30
 	s.Items = make(map[int][]byte)
 	s.mu = new(sync.Mutex)
+	s.AutoClear()
 	return s
+}
+
+func (s *FileItem) AutoClear() {
+	s.autoTime = time.AfterFunc(time.Second*time.Duration(s.ExpiredTime), func() {
+		if s == nil {
+			return
+		}
+		if s.IsSuccess {
+			return
+		}
+		GetFileManager().SendFidToChan(s.Fid)
+	})
 }
 
 func (f *FileItem) AddItem(part int, data []byte) {
@@ -68,9 +82,14 @@ func (f *FileItem) MergeUp() {
 	for _, v := range sortItems {
 		buffer.Write(f.Items[v])
 	}
+	f.autoTime.Stop()
+	defer func() {
+		GetFileManager().SendFidToChan(f.Fid)
+	}()
 	//上传文件
 	//生成缩略图
 	if needThumbnail {
 
 	}
+	//处理完成删除该信息
 }
