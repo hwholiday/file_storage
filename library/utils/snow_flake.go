@@ -1,4 +1,5 @@
 package utils
+
 import (
 	"errors"
 	"sync"
@@ -19,6 +20,8 @@ const (
 	epoch int64 = 1594364131 //这个是我在写epoch这个变量时的时间戳(秒)
 )
 
+var w *Worker
+
 type Worker struct {
 	mu        sync.Mutex // 添加互斥锁 确保并发安全
 	timestamp int64      // 记录时间戳
@@ -28,16 +31,21 @@ type Worker struct {
 
 // @desc 初始化一个节点
 // @return
-func NewWorker(workerId int64) (*Worker, error) {
+func NewWorker(workerId int64) error {
 	// 要先检测workerId是否在上面定义的范围内
 	if workerId < 0 || workerId > workerMax {
-		return nil, errors.New("workId is invalidate")
+		return errors.New("workId is invalidate")
 	}
-	return &Worker{
+	w = &Worker{
 		timestamp: 0,
 		workerId:  workerId,
 		number:    0,
-	}, nil
+	}
+	return nil
+}
+
+func GetSnowFlake() *Worker {
+	return w
 }
 
 // @desc 获取id

@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 )
 
-func (s *StorageServer) GetFileNotSlice(fid int64, bucketName string) (error, []byte) {
+func (s *storage) GetFileNotSlice(fid int64, bucketName string) (error, []byte) {
 	var (
 		object *minio.Object
 		err    error

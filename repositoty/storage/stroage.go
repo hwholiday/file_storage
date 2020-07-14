@@ -4,13 +4,29 @@ import (
 	"github.com/minio/minio-go"
 )
 
-type StorageServer struct {
+var (
+	s *storage
+)
+
+type storage struct {
 	mClient *minio.Client
 }
 
-func NewStorage(mClient *minio.Client) (r *StorageServer) {
-	r = &StorageServer{
+type Service interface {
+	GetFidAndBucketName() (int64, string)
+	UpFileNotSlice(fid int64, bucketName string, data []byte) error
+	GetFileNotSlice(fid int64, bucketName string) (error, []byte)
+	GetSliceFile(fid int64, bucketName string, start, end int64) (error, []byte)
+	DelFile(fid int64, bucketName string) error
+}
+
+func NewStorage(mClient *minio.Client) *storage {
+	s = &storage{
 		mClient: mClient,
 	}
-	return r
+	return s
+}
+
+func GetServer() Service {
+	return s
 }

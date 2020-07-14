@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"filesrv/conf"
 	"filesrv/library/log"
+	"fmt"
 	"github.com/minio/minio-go"
 	"go.uber.org/zap"
 )
 
-func (s *StorageServer) UpFileNotSlice(fid string, bucketName string, data []byte) error {
-	size, err := s.mClient.PutObject(bucketName, fid, bytes.NewReader(data), int64(len(data)), minio.PutObjectOptions{})
+func (s *storage) UpFileNotSlice(fid int64, bucketName string, data []byte) error {
+	size, err := s.mClient.PutObject(bucketName, fmt.Sprint(fid), bytes.NewReader(data), int64(len(data)), minio.PutObjectOptions{})
 	if err != nil {
 		log.GetLogger().Error("[UpFileNotSlice] PutObject", zap.Any(bucketName, fid), zap.Error(err))
 		return err
