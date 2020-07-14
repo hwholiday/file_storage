@@ -1,1 +1,5 @@
 package storage
+
+func NewStorage() {
+
+}
