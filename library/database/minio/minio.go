@@ -16,7 +16,8 @@ type Config struct {
 func NewMinio(c *Config) (mClient *minio.Client) {
 	var err error
 	if mClient, err = minio.New(c.Endpoint, c.AccessKeyID, c.SecretAccessKey, c.UseSSL); err != nil {
-		log.GetLogger().Error("[NewMinio] New", zap.Error(err))
+		log.GetLogger().Panic("[NewMinio] New", zap.Error(err))
+		return
 	}
 	return
 }
