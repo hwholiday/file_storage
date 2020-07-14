@@ -17,3 +17,9 @@ var (
 	ErrOffsetInvalid            = errors.New("OFFSET_INVALID")               //偏移值无效
 	ErrLimitInvalid             = errors.New("LIMIT_INVALID")                //限制值无效
 )
+
+// minio err info
+var (
+	ErrFileSizeInvalid = errors.New("FILE_SIZE_INVALID") //文件服务器存的文件大小,不等于文件大小
+
+)
