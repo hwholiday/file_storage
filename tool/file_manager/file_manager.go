@@ -30,6 +30,9 @@ func GetFileManager() *FileManager {
 }
 
 func (f *FileManager) SendFidToChan(fid int64) {
+	if f == nil {
+		return
+	}
 	f.clearItem <- fid
 }
 

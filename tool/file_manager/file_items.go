@@ -3,6 +3,7 @@ package file_manager
 import (
 	"bytes"
 	"filesrv/library/utils"
+	"fmt"
 	"sort"
 	"strings"
 	"sync"
@@ -135,6 +136,10 @@ func (f *FileItem) MergeUp() {
 		GetFileManager().SendFidToChan(f.Fid)
 	}()
 	//上传文件
+	if f.Md5 != utils.Md5(buffer.Bytes()) {
+		fmt.Println("MD5不同")
+		return
+	}
 	//生成缩略图
 	if needThumbnail {
 
