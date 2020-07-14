@@ -1,4 +1,4 @@
-package file_manager
+package manager
 
 import (
 	"crypto/md5"

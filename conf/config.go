@@ -2,6 +2,7 @@ package conf
 
 import (
 	"filesrv/library/database/minio"
+	"filesrv/library/database/mongo"
 	"filesrv/library/log"
 	"flag"
 	"github.com/BurntSushi/toml"
@@ -15,8 +16,10 @@ var (
 type Config struct {
 	Development bool
 	SnowFlakeId int64
+	AppName     string
 	Log         *log.Options
 	Minio       *minio.Config
+	Mongo       *mongo.Config
 	Http        *httpConf
 	Grpc        *grpcConf
 }

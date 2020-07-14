@@ -1,6 +1,9 @@
-package file_manager
+package manager
 
-import "sync"
+import (
+	"filesrv/conf"
+	"sync"
+)
 
 var fileManager *FileManager
 
@@ -47,7 +50,7 @@ func (f *FileManager) NewItem(item *FileItem) {
 func (f *FileManager) AddItem(upItem *FileUploadItem) error {
 	item, ok := f.fileItems.Load(upItem.Fid)
 	if !ok {
-		return ErrFileUploadCompleted
+		return conf.ErrFileUploadCompleted
 	}
 	fItem := item.(*FileItem)
 	return fItem.AddItem(upItem)

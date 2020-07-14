@@ -1,10 +1,15 @@
 development = false
 snowFlakeId = 1
+appName= "filesrv"
 [minio]
-    Endpoint= "192.168.1.86:9000"
-    AccessKeyID = "minioadmin"
-    SecretAccessKey ="minioadmin"
-    UseSSL=false
+    endpoint= "192.168.1.86:9000"
+    accessKeyID = "minioadmin"
+    secretAccessKey ="minioadmin"
+    useSSL=false
+    maxBucket =200
+    location="ap-east-1"     # https://docs.aws.amazon.com/general/latest/gr/rande.html
+[mongo]
+    url = "192.168.1.86:9000"
 [log]
     logFileDir = "logs"
     appName = "filesrv"

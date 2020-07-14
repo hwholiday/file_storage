@@ -1,7 +1,8 @@
-package file_manager
+package manager
 
 import (
 	"bytes"
+	"filesrv/conf"
 	"filesrv/library/utils"
 	"fmt"
 	"sort"
@@ -37,11 +38,6 @@ type ImageEx struct {
 	ThumbnailWidth int
 }
 
-type FileApplyFid struct {
-	Fid    int64 `json:"fid"`
-	Status int   `json:"status"` //1 不存在   2 等待上传  3 正在上传  4 存在  5 过期
-}
-
 var imageExName = []string{"JPG", "JPEG", "PNG"}
 
 func NewFileItem(s *FileItem) *FileItem {
@@ -69,38 +65,38 @@ func (f *FileItem) AddItem(upItem *FileUploadItem) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if f.IsSuccess {
-		return ErrFileUploadCompleted
+		return conf.ErrFileUploadCompleted
 	}
 	if upItem.Part < 1 && upItem.Part > 3000 {
-		return ErrFilePartsInvalid
+		return conf.ErrFilePartsInvalid
 	}
 	dataLen := len(upItem.Data)
 	if dataLen <= 0 {
-		return ErrFilePartEmpty
+		return conf.ErrFilePartEmpty
 	}
 	if dataLen > 524288 {
-		return ErrFilePartTooBig
+		return conf.ErrFilePartTooBig
 	}
 	if upItem.Part != f.SliceTotal { //不是最后一片
 		if dataLen%1024 != 0 {
-			return ErrFilePartSizeInvalid1KB
+			return conf.ErrFilePartSizeInvalid1KB
 		}
 		if 524288%dataLen != 0 {
-			return ErrFilePartSizeInvalid512KB
+			return conf.ErrFilePartSizeInvalid512KB
 		}
 		if f.SliceSize == 0 {
 			f.SliceSize = dataLen
 		} else {
 			if f.SliceSize != dataLen {
-				return ErrFilePartSizeChanged
+				return conf.ErrFilePartSizeChanged
 			}
 		}
 	}
 	if _, ok := f.Items[upItem.Part]; ok {
-		return ErrFilePartUploadCompleted
+		return conf.ErrFilePartUploadCompleted
 	}
 	if upItem.Md5 != utils.Md5(upItem.Data) {
-		return ErrMd5ChecksumInvalid
+		return conf.ErrMd5ChecksumInvalid
 	}
 	f.Items[upItem.Part] = upItem.Data
 	f.UploadSize += int64(len(upItem.Data))

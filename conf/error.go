@@ -1,7 +1,8 @@
-package file_manager
+package conf
 
 import "errors"
 
+//file manager error info
 var (
 	ErrFilePartsInvalid         = errors.New("FILE_PARTS_INVALID")           //无效的零件数。该值不在1..3000
 	ErrFilePartTooBig           = errors.New("FILE_PART_TOO_BIG")            //已超出文件部分内容的大小限制（512 KB）

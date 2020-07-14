@@ -11,6 +11,8 @@ type Config struct {
 	AccessKeyID     string
 	SecretAccessKey string
 	UseSSL          bool
+	Location        string
+	MaxBucket       int //设置MaxBucket个桶进行负载均衡 每次取一个桶
 }
 
 func NewMinio(c *Config) (mClient *minio.Client) {

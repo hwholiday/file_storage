@@ -10,11 +10,15 @@ import (
 	"time"
 )
 
-func NewMongo(path string) (client *mongo.Client) {
+type Config struct {
+	Url string
+}
+
+func NewMongo(c *Config) (client *mongo.Client) {
 	var err error
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if client, err = mongo.Connect(ctx, options.Client().ApplyURI(path)); err != nil {
+	if client, err = mongo.Connect(ctx, options.Client().ApplyURI(c.Url)); err != nil {
 		log.GetLogger().Panic("[NewMongo] Connect", zap.Error(err))
 		return
 	}
