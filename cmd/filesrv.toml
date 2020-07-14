@@ -1,0 +1,18 @@
+development = false
+snowFlakeId = 1
+[minio]
+    Endpoint= "192.168.1.86:9000"
+    AccessKeyID = "minioadmin"
+    SecretAccessKey ="minioadmin"
+    UseSSL=false
+[log]
+    logFileDir = "logs"
+    appName = "filesrv"
+    maxSize = 100
+    maxBackups = 60
+    maxAge = 30
+    level  = "debug"
+[http]
+    port = 8080
+[grpc]
+    port = 8081
