@@ -41,13 +41,13 @@ func (f *FileManager) NewItem(item *FileItem) {
 	f.fileItems.Store(item.Fid, item)
 }
 
-func (f *FileManager) AddItem(upItem *FileUploadItem) {
+func (f *FileManager) AddItem(upItem *FileUploadItem) error {
 	item, ok := f.fileItems.Load(upItem.Fid)
 	if !ok {
-		return
+		return ErrFileUploadCompleted
 	}
 	fItem := item.(*FileItem)
-	fItem.AddItem(upItem)
+	return fItem.AddItem(upItem)
 }
 
 func (f *FileManager) run() {
