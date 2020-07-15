@@ -14,28 +14,16 @@ import (
 type FileItem struct {
 	mu            *sync.Mutex
 	Fid           int64  //文件ID
-	Name          string //文件名
 	Size          int64  //文件总大小
-	ContentType   string
-	UploadSize    int64   //已经上传大小
-	Md5           string  //文件MD5
-	ExName        string  //文件扩展名
-	ExImage       ImageEx //图片文件扩展信息
-	SliceTotal    int     // 1   为不分片文件  (1~3000)
-	SliceSize     int     //上传除开最后一片的大小,用来判断最后一片外的每片大小是否相等
-	IsSuccess     bool    //上传完成
-	ExpiredTime   int64   //过期时间 设置为0 文件永久不过期
-	AutoClearTime int64   //到这个点没上传完成,自动删除
+	UploadSize    int64  //已经上传大小
+	Md5           string //文件MD5
+	ExName        string //文件扩展名
+	SliceTotal    int    // 1   为不分片文件  (1~3000)
+	SliceSize     int    //上传除开最后一片的大小,用来判断最后一片外的每片大小是否相等
+	IsSuccess     bool   //上传完成
+	AutoClearTime int64  //到这个点没上传完成,自动删除
 	Items         map[int][]byte
 	autoTime      *time.Timer
-}
-
-type ImageEx struct {
-	High           int
-	Width          int
-	ThumbnailFid   int64
-	ThumbnailHigh  int
-	ThumbnailWidth int
 }
 
 var imageExName = []string{"JPG", "JPEG", "PNG"}

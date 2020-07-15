@@ -17,7 +17,7 @@ import (
 type Repository struct {
 	c             *conf.Config
 	mClient       *minio.Client
-	mDb           *mongo.Client
+	mgo           *mongo.Client
 	storageServer storage.Service
 }
 
@@ -25,7 +25,7 @@ func NewRepository(c *conf.Config) (r *Repository) {
 	r = &Repository{
 		c:       c,
 		mClient: m.NewMinio(c.Minio),
-		mDb:     mgo.NewMongo(c.Mongo),
+		mgo:     mgo.NewMongo(c.Mongo),
 	}
 	err := utils.NewWorker(c.SnowFlakeId)
 	if err != nil {
@@ -39,5 +39,5 @@ func NewRepository(c *conf.Config) (r *Repository) {
 }
 
 func (r *Repository) Close() {
-	_ = r.mDb.Disconnect(context.Background())
+	_ = r.mgo.Disconnect(context.Background())
 }

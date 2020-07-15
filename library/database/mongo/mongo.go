@@ -11,7 +11,8 @@ import (
 )
 
 type Config struct {
-	Url string
+	Url      string
+	DataBase string
 }
 
 func NewMongo(c *Config) (client *mongo.Client) {
