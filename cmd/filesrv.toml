@@ -9,7 +9,7 @@ appName= "filesrv"
     maxBucket =200
     location="ap-east-1"     # https://docs.aws.amazon.com/general/latest/gr/rande.html
 [mongo]
-    url = "192.168.1.86:9000"
+    url = "mongodb://192.168.1.86:27017/"
     dataBase = "file_storage"
 [log]
     logFileDir = "logs"

@@ -9,6 +9,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/stretchr/testify v1.4.0
 	go.mongodb.org/mongo-driver v1.3.5
 	go.uber.org/zap v1.15.0
 	gopkg.in/ini.v1 v1.57.0 // indirect

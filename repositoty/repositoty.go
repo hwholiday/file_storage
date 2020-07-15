@@ -8,6 +8,7 @@ import (
 	mgo "filesrv/library/database/mongo"
 	"filesrv/library/log"
 	"filesrv/library/utils"
+	"filesrv/repositoty/fileInfo"
 	"filesrv/repositoty/storage"
 	"github.com/minio/minio-go"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,10 +16,11 @@ import (
 )
 
 type Repository struct {
-	c             *conf.Config
-	mClient       *minio.Client
-	mgo           *mongo.Client
-	storageServer storage.Service
+	c              *conf.Config
+	mClient        *minio.Client
+	mgo            *mongo.Client
+	storageServer  storage.Service
+	fileInfoServer fileInfo.Service
 }
 
 func NewRepository(c *conf.Config) (r *Repository) {
@@ -34,7 +36,9 @@ func NewRepository(c *conf.Config) (r *Repository) {
 	}
 	bucket.NewBucket(r.mClient, c)
 	storage.NewStorage(r.mClient)
+	fileInfo.NewFileInfo(r.mgo, c)
 	r.storageServer = storage.GetServer()
+	r.fileInfoServer = fileInfo.GetServer()
 	return r
 }
 
