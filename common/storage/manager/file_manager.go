@@ -2,14 +2,16 @@ package manager
 
 import (
 	"filesrv/conf"
+	"filesrv/repositoty"
 	"sync"
 )
 
-var fileManager *FileManager
+var m *FileManager
 
 type FileManager struct {
 	fileItems *sync.Map
 	clearItem chan int64
+	r         *repositoty.Repository
 }
 
 type FileUploadItem struct {
@@ -19,20 +21,21 @@ type FileUploadItem struct {
 	Md5  string
 }
 
-func NewFileManager() {
-	fileManager = &FileManager{
+func NewFileManager(r *repositoty.Repository) {
+	m = &FileManager{
 		fileItems: new(sync.Map),
 		clearItem: make(chan int64, 10),
+		r:         r,
 	}
-	go fileManager.run()
+	go m.run()
 	return
 }
 
 func GetFileManager() *FileManager {
-	return fileManager
+	return m
 }
 
-func (f *FileManager) SendFidToChan(fid int64) {
+func (f *FileManager) send(fid int64) {
 	if f == nil {
 		return
 	}

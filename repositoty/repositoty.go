@@ -6,21 +6,18 @@ import (
 	"filesrv/conf"
 	m "filesrv/library/database/minio"
 	mgo "filesrv/library/database/mongo"
-	"filesrv/library/log"
-	"filesrv/library/utils"
 	"filesrv/repositoty/fileInfo"
 	"filesrv/repositoty/storage"
 	"github.com/minio/minio-go"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.uber.org/zap"
 )
 
 type Repository struct {
 	c              *conf.Config
 	mClient        *minio.Client
 	mgo            *mongo.Client
-	storageServer  storage.Service
-	fileInfoServer fileInfo.Service
+	StorageServer  storage.Service
+	FileInfoServer fileInfo.Service
 }
 
 func NewRepository(c *conf.Config) (r *Repository) {
@@ -29,16 +26,9 @@ func NewRepository(c *conf.Config) (r *Repository) {
 		mClient: m.NewMinio(c.Minio),
 		mgo:     mgo.NewMongo(c.Mongo),
 	}
-	err := utils.NewWorker(c.SnowFlakeId)
-	if err != nil {
-		log.GetLogger().Panic("[NewRepository] NewWorker", zap.Error(err))
-		return
-	}
 	bucket.NewBucket(r.mClient, c)
-	storage.NewStorage(r.mClient)
-	fileInfo.NewFileInfo(r.mgo, c)
-	r.storageServer = storage.GetServer()
-	r.fileInfoServer = fileInfo.GetServer()
+	r.StorageServer = storage.NewStorage(r.mClient)
+	r.FileInfoServer = fileInfo.NewFileInfo(r.mgo, c)
 	return r
 }
 

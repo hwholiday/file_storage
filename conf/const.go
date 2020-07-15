@@ -14,4 +14,5 @@ const (
 
 const (
 	MgoContextTimeOut = 5 * time.Second
+	FileMaxWaitTime   = 60 * 30 * time.Second
 )

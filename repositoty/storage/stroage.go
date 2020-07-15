@@ -4,10 +4,6 @@ import (
 	"github.com/minio/minio-go"
 )
 
-var (
-	s *storage
-)
-
 type storage struct {
 	mClient *minio.Client
 }
@@ -21,12 +17,8 @@ type Service interface {
 }
 
 func NewStorage(mClient *minio.Client) *storage {
-	s = &storage{
+	s := &storage{
 		mClient: mClient,
 	}
-	return s
-}
-
-func GetServer() Service {
 	return s
 }

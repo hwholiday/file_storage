@@ -11,26 +11,22 @@ import (
 	"strings"
 )
 
-var (
-	s *fileInfo
-)
-
 type fileInfo struct {
 	mgo *mongo.Database
 }
 
 type Service interface {
+	InsertFileInfo(f *entity.FileInfo) (err error)
+	DelFileInfoByFid(fid int64) (err error)
+	GetFileInfoByFid(fid int64) (fileInfo *entity.FileInfo, err error)
+	UpdateFileInfoStatusByFid(fid int64, status int) (err error)
 }
 
 func NewFileInfo(mClient *mongo.Client, c *conf.Config) *fileInfo {
-	s = &fileInfo{
+	s := &fileInfo{
 		mgo: mClient.Database(c.Mongo.DataBase),
 	}
 	s.CreateIndex()
-	return s
-}
-
-func GetServer() Service {
 	return s
 }
 
@@ -39,7 +35,7 @@ func (f *fileInfo) CreateIndex() {
 		//对 fileinfo 库创建索引
 		fileInfo = &entity.FileInfo{}
 	)
-	indexView := s.mgo.Collection(fileInfo.TableName()).Indexes()
+	indexView := f.mgo.Collection(fileInfo.TableName()).Indexes()
 	cursor, err := indexView.List(context.Background())
 	if err != nil {
 		log.GetLogger().Panic("[NewFileInfo] List", zap.Any("name", fileInfo.TableName()), zap.Error(err))

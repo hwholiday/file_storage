@@ -3,8 +3,9 @@ package manager
 import (
 	"bytes"
 	"filesrv/conf"
+	"filesrv/library/log"
 	"filesrv/library/utils"
-	"fmt"
+	"go.uber.org/zap"
 	"sort"
 	"strings"
 	"sync"
@@ -14,6 +15,7 @@ import (
 type FileItem struct {
 	mu            *sync.Mutex
 	Fid           int64  //文件ID
+	BucketName    string //桶名
 	Size          int64  //文件总大小
 	UploadSize    int64  //已经上传大小
 	Md5           string //文件MD5
@@ -45,7 +47,10 @@ func (s *FileItem) AutoClear() {
 		if s.IsSuccess {
 			return
 		}
-		GetFileManager().SendFidToChan(s.Fid)
+		m.send(s.Fid)
+		//未上传完成被自动清理
+		log.GetLogger().Debug("[NewFileItem] AutoClear", zap.Any("fid", s.Fid))
+		_ = m.r.FileInfoServer.DelFileInfoByFid(s.Fid)
 	})
 }
 
@@ -117,16 +122,17 @@ func (f *FileItem) MergeUp() {
 	}
 	f.autoTime.Stop()
 	defer func() {
-		GetFileManager().SendFidToChan(f.Fid)
+		//不管是否上传完成结束都要删除内存中的数据
+		m.send(f.Fid)
 	}()
-	//上传文件
 	if f.Md5 != utils.Md5(buffer.Bytes()) {
-		fmt.Println("MD5不同")
 		return
 	}
+	//上传文件
+	m.r.StorageServer.UpFileNotSlice()
 	//生成缩略图
 	if needThumbnail {
 
 	}
-	//处理完成删除该信息
+
 }
