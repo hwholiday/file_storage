@@ -5,9 +5,12 @@ import (
 	"filesrv/conf"
 	"filesrv/library/log"
 	"filesrv/library/utils"
+	"github.com/disintegration/imaging"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.uber.org/zap"
+	"image"
+	"image/jpeg"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 )
@@ -19,16 +22,14 @@ type FileItem struct {
 	Size          int64  //文件总大小
 	UploadSize    int64  //已经上传大小
 	Md5           string //文件MD5
-	ExName        string //文件扩展名
-	SliceTotal    int    // 1   为不分片文件  (1~3000)
-	SliceSize     int    //上传除开最后一片的大小,用来判断最后一片外的每片大小是否相等
-	IsSuccess     bool   //上传完成
-	AutoClearTime int64  //到这个点没上传完成,自动删除
+	IsImage       bool
+	SliceTotal    int   // 1   为不分片文件  (1~3000)
+	SliceSize     int   //上传除开最后一片的大小,用来判断最后一片外的每片大小是否相等
+	IsSuccess     bool  //上传完成
+	AutoClearTime int64 //到这个点没上传完成,自动删除
 	Items         map[int][]byte
 	autoTime      *time.Timer
 }
-
-var imageExName = []string{"JPG", "JPEG", "PNG"}
 
 func NewFileItem(s *FileItem) *FileItem {
 	s.IsSuccess = false
@@ -102,17 +103,11 @@ func (f *FileItem) AddItem(upItem *FileUploadItem) error {
 
 func (f *FileItem) MergeUp() {
 	var (
-		exName        = strings.ToUpper(f.ExName)
-		needThumbnail bool
-		sortItems     []int
-		data          = make([]byte, 0, f.Size)
-		buffer        = bytes.NewBuffer(data)
+		sortItems []int
+		data      = make([]byte, 0, f.Size)
+		buffer    = bytes.NewBuffer(data)
 	)
-	for _, v := range imageExName {
-		if v == exName {
-			needThumbnail = true
-		}
-	}
+
 	for k, _ := range f.Items {
 		sortItems = append(sortItems, k)
 	}
@@ -129,10 +124,47 @@ func (f *FileItem) MergeUp() {
 		return
 	}
 	//上传文件
-	m.r.StorageServer.UpFileNotSlice()
-	//生成缩略图
-	if needThumbnail {
-
+	if err := m.r.StorageServer.UpFileNotSlice(f.Fid, f.BucketName, buffer.Bytes()); err != nil {
+		log.GetLogger().Info("[NewFileItem] MergeUp UpFileNotSlice", zap.Any(f.BucketName, f.Fid))
+		_ = m.r.FileInfoServer.DelFileInfoByFid(f.Fid)
+		return
 	}
+	if err := m.r.FileInfoServer.UpdateFileInfoStatusByFid(f.Fid, conf.FileExists); err != nil {
+		log.GetLogger().Info("[NewFileItem] MergeUp UpdateFileInfoStatusByFid", zap.Any(f.BucketName, f.Fid))
+		_ = m.r.StorageServer.DelFile(f.Fid, f.BucketName)
+		return
+	}
+	//生成缩略图
+	if f.IsImage {
+		f.UpThumbnail(buffer.Bytes())
+	}
+}
 
+func (f *FileItem) UpThumbnail(data []byte) {
+	img, _, err := image.Decode(bytes.NewReader(data))
+	if err != nil {
+		log.GetLogger().Error("[NewFileItem] UpThumbnail Decode", zap.Any(f.BucketName, f.Fid), zap.Error(err))
+		return
+	}
+	// height 为 0 保持宽高比
+	reImg := imaging.Thumbnail(img, conf.ThumbnailWidth, 0, imaging.NearestNeighbor)
+	var buf bytes.Buffer
+	if err = jpeg.Encode(&buf, reImg, nil); err != nil {
+		log.GetLogger().Error("[NewFileItem] UpThumbnail Encode", zap.Any(f.BucketName, f.Fid), zap.Error(err))
+		return
+	}
+	var thumbnailFid = utils.GetSnowFlake().GetId()
+	if err := m.r.StorageServer.UpFileNotSlice(thumbnailFid, f.BucketName, buf.Bytes()); err != nil {
+		log.GetLogger().Info("[NewFileItem] MergeUp UpFileNotSlice", zap.Any(f.BucketName, thumbnailFid))
+		return
+	}
+	if err := m.r.FileInfoServer.UpdateFileInfoByFid(f.Fid, bson.D{{"$set", bson.D{
+		{"ex_image.thumbnail_fid", thumbnailFid},
+		{"ex_image.thumbnail_high", reImg.Bounds().Dx()},
+		{"ex_image.thumbnail_width", reImg.Bounds().Dy()},
+	}}}); err != nil {
+		log.GetLogger().Info("[NewFileItem] MergeUp UpdateFileInfoByFid", zap.Any(f.BucketName, thumbnailFid))
+		_ = m.r.StorageServer.DelFile(thumbnailFid, f.BucketName)
+		return
+	}
 }

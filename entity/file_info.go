@@ -8,6 +8,7 @@ type FileInfo struct {
 	ContentType string  `bson:"content_type"` //文件信息
 	Md5         string  `bson:"md5"`          //文件MD5
 	ExName      string  `bson:"ex_name"`      //文件扩展名
+	IsImage     bool    `bson:"is_image"`     //是否是图片资源
 	ExImage     ImageEx `bson:"ex_image"`     //图片文件扩展信息
 	SliceTotal  int     `bson:"slice_total"`  // 1 为不分片文件  (1~3000)
 	ExpiredTime int64   `bson:"expired_time"` //过期时间 设置为0 文件永久不过期

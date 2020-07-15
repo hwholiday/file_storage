@@ -47,7 +47,18 @@ func (s *fileInfo) UpdateFileInfoStatusByFid(fid int64, status int) (err error) 
 	defer cancel()
 	tableName := entity.FileInfo{}.TableName()
 	if _, err = s.mgo.Collection(tableName).UpdateOne(ctx, bson.M{"fid": fid}, bson.D{{"$set", bson.D{{"status", status}}}}); err != nil {
-		log.GetLogger().Error("[GetFileInfoByFid] UpdateOne", zap.Any("name", tableName), zap.Any("fid", fid), zap.Any("status", status), zap.Error(err))
+		log.GetLogger().Error("[UpdateFileInfoStatusByFid] UpdateOne", zap.Any("name", tableName), zap.Any("fid", fid), zap.Any("status", status), zap.Error(err))
+		return
+	}
+	return
+}
+
+func (s *fileInfo) UpdateFileInfoByFid(fid int64, change interface{}) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), conf.MgoContextTimeOut)
+	defer cancel()
+	tableName := entity.FileInfo{}.TableName()
+	if _, err = s.mgo.Collection(tableName).UpdateOne(ctx, bson.M{"fid": fid}, change); err != nil {
+		log.GetLogger().Error("[UpdateFileInfoByFid] UpdateOne", zap.Any("name", tableName), zap.Any("fid", fid), zap.Any("status", change), zap.Error(err))
 		return
 	}
 	return

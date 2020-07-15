@@ -8,8 +8,16 @@ const (
 	FileNotExist = iota + 1
 	FileWaitingForUpload
 	FileUploading
-	FileAlreadyExists
+	FileExists
 	FileExpired
+)
+
+//有这些文件后缀的需要添加缩略图
+var ImageExName = []string{"JPG", "JPEG", "PNG"}
+
+const (
+	ThumbnailHigh  = 200
+	ThumbnailWidth = 200
 )
 
 const (

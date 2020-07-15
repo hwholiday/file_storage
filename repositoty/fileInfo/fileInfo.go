@@ -20,6 +20,7 @@ type Service interface {
 	DelFileInfoByFid(fid int64) (err error)
 	GetFileInfoByFid(fid int64) (fileInfo *entity.FileInfo, err error)
 	UpdateFileInfoStatusByFid(fid int64, status int) (err error)
+	UpdateFileInfoByFid(fid int64, change interface{}) (err error)
 }
 
 func NewFileInfo(mClient *mongo.Client, c *conf.Config) *fileInfo {
