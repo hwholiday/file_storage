@@ -17,7 +17,7 @@ type FileInfo struct {
 	ExpiredTime int64   `bson:"expired_time"` //过期时间 设置为0 文件永久不过期
 }
 
-func (f *FileInfo) TableName() string {
+func (f FileInfo) TableName() string {
 	return "file_info"
 }
 
