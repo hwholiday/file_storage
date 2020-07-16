@@ -1,0 +1,16 @@
+syntax = "proto3";
+package storage;
+
+message InApplyFid {
+  string Name = 1; //文件名
+  int64  Size = 2; //文件总大小 字节
+  string ExName = 3;
+  string Md5 = 4; //文件MD5
+  int32  SliceTotal = 5; // 1 为不分片文件  (1~3000)
+  int64  ExpiredTime = 6; //过期时间 设置为0 文件永久不过期 单位秒
+}
+
+message OutApplyFid {
+  int64  Fid = 1;
+  int32 Status = 2; //1 不存在   2 等待上传  3 正在上传  4 存在  5 过期
+}

@@ -10,7 +10,7 @@ type FileInfo struct {
 	ExName      string  `bson:"ex_name"`      //文件扩展名
 	IsImage     bool    `bson:"is_image"`     //是否是图片资源
 	ExImage     ImageEx `bson:"ex_image"`     //图片文件扩展信息
-	SliceTotal  int     `bson:"slice_total"`  // 1 为不分片文件  (1~3000)
+	SliceTotal  int32   `bson:"slice_total"`  // 1 为不分片文件  (1~3000)
 	ExpiredTime int64   `bson:"expired_time"` //过期时间 设置为0 文件永久不过期
 	Status      int32   `bson:"status"`       //conf 文件状态 查看解析
 	CreateTime  int64   `bson:"create_time"`

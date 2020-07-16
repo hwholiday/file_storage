@@ -23,18 +23,18 @@ type FileItem struct {
 	UploadSize    int64  //已经上传大小
 	Md5           string //文件MD5
 	IsImage       bool
-	SliceTotal    int   // 1   为不分片文件  (1~3000)
-	SliceSize     int   //上传除开最后一片的大小,用来判断最后一片外的每片大小是否相等
+	SliceTotal    int32 // 1   为不分片文件  (1~3000)
+	SliceSize     int32 //上传除开最后一片的大小,用来判断最后一片外的每片大小是否相等
 	IsSuccess     bool  //上传完成
 	AutoClearTime int64 //到这个点没上传完成,自动删除
-	Items         map[int][]byte
+	Items         map[int32][]byte
 	autoTime      *time.Timer
 }
 
 func NewFileItem(s *FileItem) *FileItem {
 	s.IsSuccess = false
 	s.AutoClearTime = 60 * 30
-	s.Items = make(map[int][]byte)
+	s.Items = make(map[int32][]byte)
 	s.mu = new(sync.Mutex)
 	s.AutoClear()
 	return s
@@ -64,7 +64,7 @@ func (f *FileItem) AddItem(upItem *FileUploadItem) error {
 	if upItem.Part < 1 && upItem.Part > 3000 {
 		return conf.ErrFilePartsInvalid
 	}
-	dataLen := len(upItem.Data)
+	dataLen := int32(len(upItem.Data))
 	if dataLen <= 0 {
 		return conf.ErrFilePartEmpty
 	}
@@ -94,7 +94,7 @@ func (f *FileItem) AddItem(upItem *FileUploadItem) error {
 	}
 	f.Items[upItem.Part] = upItem.Data
 	f.UploadSize += int64(len(upItem.Data))
-	if f.UploadSize >= f.Size && len(f.Items) == f.SliceTotal {
+	if f.UploadSize >= f.Size && int32(len(f.Items)) == f.SliceTotal {
 		f.IsSuccess = true
 		go f.MergeUp()
 	}
@@ -109,11 +109,11 @@ func (f *FileItem) MergeUp() {
 	)
 
 	for k, _ := range f.Items {
-		sortItems = append(sortItems, k)
+		sortItems = append(sortItems, int(k))
 	}
 	sort.Ints(sortItems)
 	for _, v := range sortItems {
-		buffer.Write(f.Items[v])
+		buffer.Write(f.Items[int32(v)])
 	}
 	f.autoTime.Stop()
 	defer func() {

@@ -12,6 +12,7 @@ var (
 	ErrFilePartSizeChanged      = errors.New("FILE_PART_SIZE_CHANGED")       //分片大小与同一文件中先前零件之一的大小不同
 	ErrMd5ChecksumInvalid       = errors.New("MD5_CHECKSUM_INVALID")         //文件的校验和与md5_checksum参数不匹配
 	ErrFileUploadCompleted      = errors.New("FILE_UPLOAD_COMPLETED")        //文件已经上传完成
+	ErrFileUploading            = errors.New("FILE_UPLOADING")               //文件正在上传
 	ErrFilePartUploadCompleted  = errors.New("FILE_PART_UPLOAD_COMPLETED")   //文件分片已经上传完成
 	ErrFileIdInvalid            = errors.New("FILE_ID_INVALID")              //文件地址无效
 	ErrOffsetInvalid            = errors.New("OFFSET_INVALID")               //偏移值无效

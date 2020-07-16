@@ -16,7 +16,7 @@ type FileManager struct {
 
 type FileUploadItem struct {
 	Fid  int64
-	Part int
+	Part int32
 	Data []byte
 	Md5  string
 }
@@ -42,12 +42,14 @@ func (f *FileManager) send(fid int64) {
 	f.clearItem <- fid
 }
 
-func (f *FileManager) NewItem(item *FileItem) {
+func (f *FileManager) NewItem(item *FileItem) int32 {
 	_, ok := f.fileItems.Load(item.Fid)
 	if ok {
-		return
+		return conf.FileUploading
 	}
+	item = NewFileItem(item)
 	f.fileItems.Store(item.Fid, item)
+	return conf.FileNotExist
 }
 
 func (f *FileManager) AddItem(upItem *FileUploadItem) error {
@@ -57,6 +59,10 @@ func (f *FileManager) AddItem(upItem *FileUploadItem) error {
 	}
 	fItem := item.(*FileItem)
 	return fItem.AddItem(upItem)
+}
+
+func (f *FileManager) DelItem(fid int64) {
+	f.fileItems.Delete(fid)
 }
 
 func (f *FileManager) run() {

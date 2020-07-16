@@ -334,6 +334,7 @@ var contentTypeMap = map[string]string{
 }
 
 func GetContentType(ex string) string {
+	ex = strings.Trim(ex, " ")
 	if len(ex) <= 0 {
 		return contentTypeMap["*"]
 	} else {

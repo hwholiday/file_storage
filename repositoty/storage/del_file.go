@@ -7,6 +7,10 @@ import (
 )
 
 func (s *storage) DelFile(fid int64, bucketName string) error {
+	if err := s.mClient.RemoveObject(bucketName, strconv.Itoa(int(fid))); err != nil {
+		log.GetLogger().Error("[DelFile]", zap.Any(bucketName, fid), zap.Error(err))
+		return err
+	}
 	log.GetLogger().Debug("[DelFile]", zap.Any(bucketName, fid))
-	return s.mClient.RemoveObject(bucketName, strconv.Itoa(int(fid)))
+	return nil
 }
