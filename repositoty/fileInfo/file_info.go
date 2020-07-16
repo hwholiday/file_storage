@@ -42,6 +42,18 @@ func (s *fileInfo) GetFileInfoByFid(fid int64) (fileInfo *entity.FileInfo, err e
 	return
 }
 
+func (s *fileInfo) GetFileInfoByMd5(md5 string) (fileInfo *entity.FileInfo, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), conf.MgoContextTimeOut)
+	defer cancel()
+	fileInfo = new(entity.FileInfo)
+	tableName := fileInfo.TableName()
+	if err = s.mgo.Collection(tableName).FindOne(ctx, bson.M{"md5": md5}).Decode(fileInfo); err != nil {
+		log.GetLogger().Error("[GetFileInfoByFid] FindOne", zap.Any("name", tableName), zap.Any("md5", md5), zap.Error(err))
+		return
+	}
+	return
+}
+
 func (s *fileInfo) UpdateFileInfoStatusByFid(fid int64, status int) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), conf.MgoContextTimeOut)
 	defer cancel()

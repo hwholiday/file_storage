@@ -12,6 +12,7 @@ import (
 )
 
 func (s *service) ApplyFid(info *storage.InApplyFid) (out *storage.OutApplyFid, err error) {
+
 	var fInfo = s.convertDataToFileInfo(info)
 	out = new(storage.OutApplyFid)
 	out.Fid = fInfo.Fid
@@ -21,7 +22,6 @@ func (s *service) ApplyFid(info *storage.InApplyFid) (out *storage.OutApplyFid, 
 		log.GetLogger().Info("[ApplyFid] addApplyFidIntoManager", zap.Any("find fid by manager", fInfo.Fid))
 		return
 	}
-
 	if err = s.r.FileInfoServer.InsertFileInfo(fInfo); err != nil {
 		s.f.DelItem(fInfo.Fid) //插入数据库失败，删除文件管理类
 		log.GetLogger().Info("[ApplyFid] InsertFileInfo", zap.Any("fid", fInfo.Fid))

@@ -19,6 +19,7 @@ type Service interface {
 	InsertFileInfo(f *entity.FileInfo) (err error)
 	DelFileInfoByFid(fid int64) (err error)
 	GetFileInfoByFid(fid int64) (fileInfo *entity.FileInfo, err error)
+	GetFileInfoByMd5(md5 string) (fileInfo *entity.FileInfo, err error)
 	UpdateFileInfoStatusByFid(fid int64, status int) (err error)
 	UpdateFileInfoByFid(fid int64, change interface{}) (err error)
 }
@@ -43,10 +44,13 @@ func (f *fileInfo) createIndex() {
 		return
 	}
 	var hasFidIndex bool
+	var hasMd5Index bool
 	for cursor.Next(context.Background()) {
 		if strings.Contains(cursor.Current.String(), "fid_1") {
 			hasFidIndex = true
-			break
+		}
+		if strings.Contains(cursor.Current.String(), "md5_1") {
+			hasMd5Index = true
 		}
 	}
 	if !hasFidIndex {
@@ -60,4 +64,16 @@ func (f *fileInfo) createIndex() {
 		log.GetLogger().Info("[NewFileInfo] CreateIndex fid success", zap.Any("name", fileInfo.TableName()))
 
 	}
+	if !hasMd5Index {
+		_, err := indexView.CreateOne(context.Background(), mongo.IndexModel{
+			Keys: bson.D{{"md5", 1}},
+		})
+		if err != nil {
+			log.GetLogger().Panic("[NewFileInfo] CreateIndex", zap.Any("name", fileInfo.TableName()), zap.Error(err))
+			return
+		}
+		log.GetLogger().Info("[NewFileInfo] CreateIndex md5 success", zap.Any("name", fileInfo.TableName()))
+
+	}
+
 }
