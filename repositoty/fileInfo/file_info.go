@@ -6,6 +6,7 @@ import (
 	"filesrv/entity"
 	"filesrv/library/log"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
 
@@ -33,10 +34,12 @@ func (s *fileInfo) DelFileInfoByFid(fid int64) (err error) {
 func (s *fileInfo) GetFileInfoByFid(fid int64) (fileInfo *entity.FileInfo, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), conf.MgoContextTimeOut)
 	defer cancel()
-	fileInfo = new(entity.FileInfo)
-	tableName := fileInfo.TableName()
-	if err = s.mgo.Collection(tableName).FindOne(ctx, bson.M{"fid": fid}).Decode(fileInfo); err != nil {
-		log.GetLogger().Error("[GetFileInfoByFid] FindOne", zap.Any("name", tableName), zap.Any("fid", fid), zap.Error(err))
+	fileInfo = &entity.FileInfo{}
+	if err = s.mgo.Collection(fileInfo.TableName()).FindOne(ctx, bson.M{"fid": fid}).Decode(fileInfo); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		log.GetLogger().Error("[GetFileInfoByFid] FindOne", zap.Any("name", fileInfo.TableName()), zap.Any("fid", fid), zap.Error(err))
 		return
 	}
 	return
@@ -45,10 +48,12 @@ func (s *fileInfo) GetFileInfoByFid(fid int64) (fileInfo *entity.FileInfo, err e
 func (s *fileInfo) GetFileInfoByMd5(md5 string) (fileInfo *entity.FileInfo, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), conf.MgoContextTimeOut)
 	defer cancel()
-	fileInfo = new(entity.FileInfo)
-	tableName := fileInfo.TableName()
-	if err = s.mgo.Collection(tableName).FindOne(ctx, bson.M{"md5": md5}).Decode(fileInfo); err != nil {
-		log.GetLogger().Error("[GetFileInfoByFid] FindOne", zap.Any("name", tableName), zap.Any("md5", md5), zap.Error(err))
+	fileInfo = &entity.FileInfo{}
+	if err = s.mgo.Collection(fileInfo.TableName()).FindOne(ctx, bson.M{"md5": md5}).Decode(fileInfo); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		log.GetLogger().Error("[GetFileInfoByFid] FindOne", zap.Any("name", fileInfo.TableName()), zap.Any("md5", md5), zap.Error(err))
 		return
 	}
 	return

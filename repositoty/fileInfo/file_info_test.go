@@ -85,6 +85,7 @@ func TestFileInfo_GetFileInfoByMd5(t *testing.T) {
 	Convey("TestFileInfo_GetFileInfoByMd5", t, func() {
 		info, err := fi.GetFileInfoByMd5("123wdeqwe12313qd")
 		So(err, ShouldBeNil)
+		So(info, ShouldNotBeNil)
 		t.Log(info)
 	})
 }

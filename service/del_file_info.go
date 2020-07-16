@@ -15,6 +15,9 @@ func (s *service) DelFileByFid(fid int64) error {
 	if err != nil {
 		return err
 	}
+	if fileInfo != nil {
+		return nil
+	}
 	if err = s.r.FileInfoServer.DelFileInfoByFid(fid); err != nil {
 		return err
 	}

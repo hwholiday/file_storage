@@ -8,13 +8,26 @@ import (
 	"filesrv/entity"
 	"filesrv/library/log"
 	"filesrv/library/utils"
+	"fmt"
 	"go.uber.org/zap"
 )
 
 func (s *service) ApplyFid(info *storage.InApplyFid) (out *storage.OutApplyFid, err error) {
-
-	var fInfo = s.convertDataToFileInfo(info)
 	out = new(storage.OutApplyFid)
+	var fileInfo *entity.FileInfo
+	fileInfo, err = s.GetFileInfoByMd5(info.Md5)
+	if err != nil {
+		return
+	}
+	fmt.Println(fileInfo)
+	if fileInfo != nil { //代表存在数据
+		out.Fid = fileInfo.Fid
+		out.Status = fileInfo.Status
+		log.GetLogger().Debug("[ApplyFid] fid find", zap.Any("md5", info.Md5), zap.Any("info", fileInfo))
+		return
+	}
+	//新建文件信息
+	var fInfo = s.convertDataToFileInfo(info)
 	out.Fid = fInfo.Fid
 	status := s.addApplyFidIntoManager(fInfo)
 	if status == conf.FileUploading {
@@ -27,6 +40,8 @@ func (s *service) ApplyFid(info *storage.InApplyFid) (out *storage.OutApplyFid, 
 		log.GetLogger().Info("[ApplyFid] InsertFileInfo", zap.Any("fid", fInfo.Fid))
 		return
 	}
+	log.GetLogger().Info("[ApplyFid] InsertFileInfo", zap.Any("fid", fInfo.Fid))
+	out.Status = fInfo.Status
 	return
 }
 

@@ -1,6 +1,7 @@
 package service
 
 import (
+	storage "filesrv/api/pb"
 	"filesrv/common/storage/manager"
 	"filesrv/conf"
 	"filesrv/library/log"
@@ -17,6 +18,10 @@ type service struct {
 	f *manager.FileManager
 }
 
+type Service interface {
+	ApplyFid(info *storage.InApplyFid) (out *storage.OutApplyFid, err error)
+}
+
 func NewService(c *conf.Config) {
 	s = &service{
 		c: c,
@@ -31,7 +36,7 @@ func NewService(c *conf.Config) {
 	s.f = manager.GetFileManager()
 }
 
-func GetService() *service {
+func GetService() Service {
 	return s
 }
 
