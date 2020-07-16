@@ -20,6 +20,7 @@ type service struct {
 
 type Service interface {
 	ApplyFid(info *storage.InApplyFid) (out *storage.OutApplyFid, err error)
+	UpSliceFile(in *storage.InUpSliceFileItem) (err error)
 }
 
 func NewService(c *conf.Config) {

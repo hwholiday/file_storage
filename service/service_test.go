@@ -1,13 +1,17 @@
 package service
 
 import (
+	"crypto/md5"
 	storage "filesrv/api/pb"
 	"filesrv/conf"
 	"filesrv/library/log"
 	"flag"
+	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
+	"sync"
 	"testing"
+	"time"
 )
 
 func TestMain(m *testing.M) {
@@ -21,18 +25,73 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+var waitSync sync.WaitGroup
+
 func TestService_ApplyFid(t *testing.T) {
-	Convey("TestService_ApplyFid", t, func() {
+	Convey("ApplyFid", t, func() {
+		fileData, err := os.Open("./../res/665419.png")
+		So(err, ShouldBeNil)
+		defer fileData.Close()
+		fi, err := fileData.Stat()
+		So(err, ShouldBeNil)
+		buf := make([]byte, fi.Size())
+		_, err = fileData.Read(buf)
+		So(err, ShouldBeNil)
+		var sliceSize uint32
+		num := fi.Size() / (512 * 1024)
+		sliceSize = 512 * 1024
+		if fi.Size()%(512*1024) != 0 {
+			num++
+		}
+		t.Log("计划分片个数", num)
 		out, err := GetService().ApplyFid(&storage.InApplyFid{
-			Name:        "qaz.jpg",
-			Size:        123451123,
-			ExName:      "jpg",
-			Md5:         "qwertyu",
-			SliceTotal:  10,
+			Name:        fi.Name(),
+			Size:        fi.Size(),
+			ExName:      "png",
+			Md5:         fmt.Sprintf("%x", md5.Sum(buf)),
+			SliceTotal:  int32(num),
+			Height:      800,
+			Width:       800,
 			ExpiredTime: 0,
 		})
 		So(err, ShouldBeNil)
 		So(out, ShouldNotBeNil)
 		t.Log(out)
+		Convey("UpSliceFile", func() {
+			var startTime = time.Now().UnixNano() / 1e6
+			for i := 1; i <= int(num); i++ {
+				waitSync.Add(1)
+				go func(index int) {
+					data := (index - 1) * int(sliceSize)
+					if int(num) == index {
+						t.Log("send ", "fid ", out.Fid, "index ", index)
+						err = GetService().UpSliceFile(&storage.InUpSliceFileItem{
+							Fid:  out.Fid,
+							Part: int32(index),
+							Data: buf[data:],
+							Md5:  fmt.Sprintf("%x", md5.Sum(buf[data:])),
+						})
+						if err != nil {
+							t.Error(err)
+						}
+					} else {
+						t.Log("send ", "fid ", out.Fid, "index ", index)
+						err = GetService().UpSliceFile(&storage.InUpSliceFileItem{
+							Fid:  out.Fid,
+							Part: int32(index),
+							Data: buf[data : data+int(sliceSize)],
+							Md5:  fmt.Sprintf("%x", md5.Sum(buf[data:data+int(sliceSize)])),
+						})
+						if err != nil {
+							t.Error(err)
+						}
+					}
+					waitSync.Done()
+				}(i)
+			}
+			waitSync.Wait()
+			t.Log("消耗时间  ", time.Now().UnixNano()/1e6-startTime, "》》毫秒")
+		})
 	})
+	select {}
 }

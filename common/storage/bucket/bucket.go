@@ -50,12 +50,12 @@ func GetStorageBucket() *StorageBucket {
 func (s *StorageBucket) GetRandBucketName() string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	s.nextID++
 	var bucketName bytes.Buffer
 	bucketName.WriteString(s.prefix)
 	bucketName.WriteString("-")
 	bucketName.WriteString(strconv.Itoa(int(s.nextID)))
-	s.nextID++
-	if s.nextID > s.maxBucket {
+	if s.nextID >= s.maxBucket {
 		s.nextID = 0
 	}
 	return bucketName.String()

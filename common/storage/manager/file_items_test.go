@@ -32,7 +32,7 @@ func TestNewFileItem(t *testing.T) {
 	fileItem := NewFileItem(&FileItem{
 		Fid:        123,
 		Size:       fi.Size(),
-		SliceTotal: int(num),
+		SliceTotal: int32(num),
 		Md5:        fmt.Sprintf("%x", md5.Sum(buf)),
 	})
 	fmt.Println("sliceSize", sliceSize)
@@ -46,14 +46,14 @@ func TestNewFileItem(t *testing.T) {
 			if int(num) == index {
 				fmt.Println(fileItem.AddItem(&FileUploadItem{
 					Fid:  123,
-					Part: index,
+					Part: int32(index),
 					Data: buf[data:],
 					Md5:  fmt.Sprintf("%x", md5.Sum(buf[data:])),
 				}))
 			} else {
 				fmt.Println(fileItem.AddItem(&FileUploadItem{
 					Fid:  123,
-					Part: index,
+					Part: int32(index),
 					Data: buf[data : data+int(sliceSize)],
 					Md5:  fmt.Sprintf("%x", md5.Sum(buf[data:data+int(sliceSize)])),
 				}))

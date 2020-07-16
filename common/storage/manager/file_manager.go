@@ -42,20 +42,15 @@ func (f *FileManager) send(fid int64) {
 	f.clearItem <- fid
 }
 
-func (f *FileManager) NewItem(item *FileItem) int32 {
-	_, ok := f.fileItems.Load(item.Fid)
-	if ok {
-		return conf.FileUploading
-	}
+func (f *FileManager) NewItem(item *FileItem) {
 	item = NewFileItem(item)
 	f.fileItems.Store(item.Fid, item)
-	return conf.FileNotExist
 }
 
 func (f *FileManager) AddItem(upItem *FileUploadItem) error {
 	item, ok := f.fileItems.Load(upItem.Fid)
 	if !ok {
-		return conf.ErrFileUploadCompleted
+		return conf.ErrFileIdInvalid
 	}
 	fItem := item.(*FileItem)
 	return fItem.AddItem(upItem)

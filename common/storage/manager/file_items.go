@@ -23,17 +23,17 @@ type FileItem struct {
 	UploadSize    int64  //已经上传大小
 	Md5           string //文件MD5
 	IsImage       bool
-	SliceTotal    int32 // 1   为不分片文件  (1~3000)
-	SliceSize     int32 //上传除开最后一片的大小,用来判断最后一片外的每片大小是否相等
-	IsSuccess     bool  //上传完成
-	AutoClearTime int64 //到这个点没上传完成,自动删除
+	SliceTotal    int32         // 1   为不分片文件  (1~3000)
+	SliceSize     int32         //上传除开最后一片的大小,用来判断最后一片外的每片大小是否相等
+	IsSuccess     bool          //上传完成
+	AutoClearTime time.Duration //到这个点没上传完成,自动删除
 	Items         map[int32][]byte
 	autoTime      *time.Timer
 }
 
 func NewFileItem(s *FileItem) *FileItem {
 	s.IsSuccess = false
-	s.AutoClearTime = 60 * 30
+	s.AutoClearTime = conf.FileMaxWaitTime
 	s.Items = make(map[int32][]byte)
 	s.mu = new(sync.Mutex)
 	s.AutoClear()
@@ -41,7 +41,7 @@ func NewFileItem(s *FileItem) *FileItem {
 }
 
 func (s *FileItem) AutoClear() {
-	s.autoTime = time.AfterFunc(time.Second*time.Duration(s.AutoClearTime), func() {
+	s.autoTime = time.AfterFunc(s.AutoClearTime, func() {
 		if s == nil {
 			return
 		}
@@ -80,6 +80,9 @@ func (f *FileItem) AddItem(upItem *FileUploadItem) error {
 		}
 		if f.SliceSize == 0 {
 			f.SliceSize = dataLen
+			if err := m.r.FileInfoServer.UpdateFileInfoStatusByFid(f.Fid, conf.FileUploading); err != nil {
+				log.GetLogger().Info("[NewFileItem] AddItem UpdateFileInfoStatusByFid", zap.Any(f.BucketName, f.Fid))
+			}
 		} else {
 			if f.SliceSize != dataLen {
 				return conf.ErrFilePartSizeChanged
@@ -138,6 +141,7 @@ func (f *FileItem) MergeUp() {
 	if f.IsImage {
 		f.UpThumbnail(buffer.Bytes())
 	}
+	log.GetLogger().Debug("[NewFileItem] MergeUp success", zap.Any(f.BucketName, f.Fid))
 }
 
 func (f *FileItem) UpThumbnail(data []byte) {
@@ -147,7 +151,7 @@ func (f *FileItem) UpThumbnail(data []byte) {
 		return
 	}
 	// height 为 0 保持宽高比
-	reImg := imaging.Thumbnail(img, conf.ThumbnailWidth, 0, imaging.NearestNeighbor)
+	reImg := imaging.Thumbnail(img, conf.ThumbnailWidth, conf.ThumbnailHeight, imaging.NearestNeighbor)
 	var buf bytes.Buffer
 	if err = jpeg.Encode(&buf, reImg, nil); err != nil {
 		log.GetLogger().Error("[NewFileItem] UpThumbnail Encode", zap.Any(f.BucketName, f.Fid), zap.Error(err))
@@ -160,8 +164,8 @@ func (f *FileItem) UpThumbnail(data []byte) {
 	}
 	if err := m.r.FileInfoServer.UpdateFileInfoByFid(f.Fid, bson.D{{"$set", bson.D{
 		{"ex_image.thumbnail_fid", thumbnailFid},
-		{"ex_image.thumbnail_high", reImg.Bounds().Dx()},
-		{"ex_image.thumbnail_width", reImg.Bounds().Dy()},
+		{"ex_image.thumbnail_height", conf.ThumbnailWidth},
+		{"ex_image.thumbnail_width", conf.ThumbnailHeight},
 	}}}); err != nil {
 		log.GetLogger().Info("[NewFileItem] MergeUp UpdateFileInfoByFid", zap.Any(f.BucketName, thumbnailFid))
 		_ = m.r.StorageServer.DelFile(thumbnailFid, f.BucketName)

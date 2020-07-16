@@ -8,9 +8,18 @@ message InApplyFid {
   string Md5 = 4; //文件MD5
   int32  SliceTotal = 5; // 1 为不分片文件  (1~3000)
   int64  ExpiredTime = 6; //过期时间 设置为0 文件永久不过期 单位秒
+  int32  Width = 7; //宽 图片文件需要
+  int32  Height = 8; //高 图片文件需要
 }
 
 message OutApplyFid {
   int64  Fid = 1;
   int32 Status = 2; //1 不存在   2 等待上传  3 正在上传  4 存在  5 过期
+}
+
+message InUpSliceFileItem {
+  int64  Fid = 1; //文件ID
+  int32 Part = 2; //分片ID
+  bytes Data = 3; //文件内容
+  string Md5 = 4; //分片MD5
 }

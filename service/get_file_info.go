@@ -31,3 +31,8 @@ func (s *service) GetFileInfoByMd5(md5 string) (fileInfo *entity.FileInfo, err e
 	}
 	return
 }
+
+func (s *service) GetFileInfoByMd5NotAutoClear(md5 string) (fileInfo *entity.FileInfo, err error) {
+	fileInfo, err = s.r.FileInfoServer.GetFileInfoByMd5(md5)
+	return
+}

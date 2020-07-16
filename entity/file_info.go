@@ -22,9 +22,9 @@ func (f FileInfo) TableName() string {
 }
 
 type ImageEx struct {
-	High           int   `bson:"high"`
-	Width          int   `bson:"width"`
-	ThumbnailFid   int64 `bson:"thumbnail_fid"`
-	ThumbnailHigh  int   `bson:"thumbnail_high"`
-	ThumbnailWidth int   `bson:"thumbnail_width"`
+	Height          int32 `bson:"height"`
+	Width           int32 `bson:"width"`
+	ThumbnailFid    int64 `bson:"thumbnail_fid"`
+	ThumbnailHeight int32 `bson:"thumbnail_height"`
+	ThumbnailWidth  int32 `bson:"thumbnail_width"`
 }
