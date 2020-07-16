@@ -4,12 +4,12 @@ go 1.14
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/disintegration/imaging v1.6.2 // indirect
+	github.com/disintegration/imaging v1.6.2
 	github.com/go-ini/ini v1.57.0 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible
-	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/smartystreets/goconvey v1.6.4
 	github.com/stretchr/testify v1.4.0
 	go.mongodb.org/mongo-driver v1.3.5
 	go.uber.org/zap v1.15.0

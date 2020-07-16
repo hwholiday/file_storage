@@ -27,11 +27,11 @@ func NewFileInfo(mClient *mongo.Client, c *conf.Config) *fileInfo {
 	s := &fileInfo{
 		mgo: mClient.Database(c.Mongo.DataBase),
 	}
-	s.CreateIndex()
+	s.createIndex()
 	return s
 }
 
-func (f *fileInfo) CreateIndex() {
+func (f *fileInfo) createIndex() {
 	var (
 		//对 fileinfo 库创建索引
 		fileInfo = &entity.FileInfo{}

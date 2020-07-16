@@ -9,16 +9,16 @@ import (
 	"go.uber.org/zap"
 )
 
-var s *Service
+var s *service
 
-type Service struct {
+type service struct {
 	c *conf.Config
 	r *repositoty.Repository
 	f *manager.FileManager
 }
 
 func NewService(c *conf.Config) {
-	s = &Service{
+	s = &service{
 		c: c,
 		r: repositoty.NewRepository(c),
 	}
@@ -31,10 +31,10 @@ func NewService(c *conf.Config) {
 	s.f = manager.GetFileManager()
 }
 
-func GetService() *Service {
+func GetService() *service {
 	return s
 }
 
-func (s *Service) Close() {
+func (s *service) Close() {
 	s.r.Close()
 }
