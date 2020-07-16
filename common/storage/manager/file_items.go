@@ -50,7 +50,6 @@ func (s *FileItem) AutoClear() {
 		}
 		m.send(s.Fid)
 		//未上传完成被自动清理
-		log.GetLogger().Debug("[NewFileItem] AutoClear", zap.Any("fid", s.Fid))
 		_ = m.r.FileInfoServer.DelFileInfoByFid(s.Fid)
 	})
 }

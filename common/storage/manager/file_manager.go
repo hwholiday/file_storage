@@ -2,7 +2,9 @@ package manager
 
 import (
 	"filesrv/conf"
+	"filesrv/library/log"
 	"filesrv/repositoty"
+	"go.uber.org/zap"
 	"sync"
 )
 
@@ -64,6 +66,7 @@ func (f *FileManager) run() {
 	for {
 		select {
 		case fid := <-f.clearItem:
+			log.GetLogger().Debug("auto clear file cache", zap.Any("fid", fid))
 			f.fileItems.Delete(fid)
 		}
 	}

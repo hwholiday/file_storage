@@ -43,7 +43,6 @@ func TestService_ApplyFid(t *testing.T) {
 		if fi.Size()%(512*1024) != 0 {
 			num++
 		}
-		t.Log("计划分片个数", num)
 		out, err := GetService().ApplyFid(&storage.InApplyFid{
 			Name:        fi.Name(),
 			Size:        fi.Size(),
@@ -57,6 +56,10 @@ func TestService_ApplyFid(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(out, ShouldNotBeNil)
 		t.Log(out)
+		if out.Status == conf.FileExists {
+			t.Log("file exists")
+			return
+		}
 		Convey("UpSliceFile", func() {
 			var startTime = time.Now().UnixNano() / 1e6
 			for i := 1; i <= int(num); i++ {
@@ -90,7 +93,7 @@ func TestService_ApplyFid(t *testing.T) {
 				}(i)
 			}
 			waitSync.Wait()
-			t.Log("消耗时间  ", time.Now().UnixNano()/1e6-startTime, "》》毫秒")
+			t.Log("time consuming (millisecond)", time.Now().UnixNano()/1e6-startTime)
 		})
 	})
 	select {}

@@ -19,3 +19,7 @@ func (s *service) UpSliceFile(in *storage.InUpSliceFileItem) (err error) {
 	}
 	return
 }
+
+func (s *service) DownSliceFile(in *storage.InUpSliceFileItem) (err error) {
+	return
+}
