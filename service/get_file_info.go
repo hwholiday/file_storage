@@ -1,6 +1,7 @@
 package service
 
 import (
+	storage "filesrv/api/pb"
 	"filesrv/conf"
 	"filesrv/entity"
 	"filesrv/library/utils"
@@ -35,4 +36,36 @@ func (s *service) GetFileInfoByMd5(md5 string) (fileInfo *entity.FileInfo, err e
 func (s *service) GetFileInfoByMd5NotAutoClear(md5 string) (fileInfo *entity.FileInfo, err error) {
 	fileInfo, err = s.r.FileInfoServer.GetFileInfoByMd5(md5)
 	return
+}
+
+func (s *service) GetPbFileInfoByFid(fid int64) {
+
+}
+
+func (s *service) convertFileInfoDataToPbFileInfo(f *entity.FileInfo) *storage.FileInfo {
+	st := &storage.FileInfo{
+		Fid:         f.Fid,
+		Name:        f.Name,
+		BucketName:  f.BucketName,
+		Size:        f.Size,
+		ContentType: f.ContentType,
+		Md5:         f.Md5,
+		ExName:      f.ExName,
+		IsImage:     f.IsImage,
+		SliceTotal:  f.SliceTotal,
+		ExpiredTime: f.ExpiredTime,
+		Status:      f.Status,
+		CreateTime:  f.CreateTime,
+		UpdateTime:  f.UpdateTime,
+	}
+	if st.IsImage {
+		st.ExImage = &storage.ImageEx{
+			Height:          f.ExImage.Height,
+			Width:           f.ExImage.Width,
+			ThumbnailFid:    f.ExImage.ThumbnailFid,
+			ThumbnailHeight: f.ExImage.ThumbnailHeight,
+			ThumbnailWidth:  f.ExImage.ThumbnailWidth,
+		}
+	}
+	return st
 }

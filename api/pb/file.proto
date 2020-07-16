@@ -24,3 +24,28 @@ message InUpSliceFileItem {
   string Md5 = 4; //分片MD5
 }
 
+message FileInfo  {
+  int64       Fid = 1;       //文件ID
+  string      Name = 2;  //文件名
+  string      BucketName = 3;  //桶名
+  int64       Size = 4;  //文件总大小
+  string      ContentType = 5;  //文件信息
+  string      Md5 = 6;  //文件MD5
+  string      ExName = 7;  //文件扩展名
+  bool        IsImage = 8;  //是否是图片资源
+  ImageEx     ExImage = 9;  //图片文件扩展信息
+  int32       SliceTotal = 10;  // 1 为不分片文件  (1~3000)
+  int64       ExpiredTime = 11;  //过期时间 设置为0 文件永久不过期
+  int32       Status = 12;  //conf 文件状态 查看解析
+  int64       CreateTime = 13;
+  int64       UpdateTime = 14; //如果最后一次操作时间+FileMaxWaitTime大于当前时间,并且文件状态不是已经完成,自动删除
+}
+
+message ImageEx  {
+  int32     Height = 1;
+  int32     Width = 2;
+  int64     ThumbnailFid = 3;
+  int32     ThumbnailHeight = 4;
+  int32     ThumbnailWidth = 5;
+}
+
