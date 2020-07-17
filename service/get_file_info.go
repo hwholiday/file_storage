@@ -38,8 +38,22 @@ func (s *service) GetFileInfoByMd5NotAutoClear(md5 string) (fileInfo *entity.Fil
 	return
 }
 
-func (s *service) GetPbFileInfoByFid(fid int64) {
+func (s *service) GetPbFileInfoByFid(fid int64) (fileInfo *storage.FileInfo, err error) {
+	var info *entity.FileInfo
+	if info, err = s.r.FileInfoServer.GetFileInfoByFid(fid); err != nil {
+		return
+	}
+	fileInfo = s.convertFileInfoDataToPbFileInfo(info)
+	return
+}
 
+func (s *service) GetPbFileInfoByMd5(md5 string) (fileInfo *storage.FileInfo, err error) {
+	var info *entity.FileInfo
+	if info, err = s.r.FileInfoServer.GetFileInfoByMd5(md5); err != nil {
+		return
+	}
+	fileInfo = s.convertFileInfoDataToPbFileInfo(info)
+	return
 }
 
 func (s *service) convertFileInfoDataToPbFileInfo(f *entity.FileInfo) *storage.FileInfo {

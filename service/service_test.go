@@ -98,3 +98,12 @@ func TestService_ApplyFid(t *testing.T) {
 	})
 	select {}
 }
+
+func TestService_GetPbFileInfoByFid(t *testing.T) {
+	Convey("TestService_GetPbFileInfoByFid", t, func() {
+		fileInfo, err := GetService().GetPbFileInfoByFid(2261944530632704)
+		So(err, ShouldBeNil)
+		So(fileInfo, ShouldNotBeNil)
+		t.Log(fileInfo)
+	})
+}
