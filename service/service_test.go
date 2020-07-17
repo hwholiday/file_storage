@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"crypto/md5"
 	storage "filesrv/api/pb"
 	"filesrv/conf"
@@ -8,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
+	"io/ioutil"
 	"os"
 	"sync"
 	"testing"
@@ -105,5 +107,51 @@ func TestService_GetPbFileInfoByFid(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(fileInfo, ShouldNotBeNil)
 		t.Log(fileInfo)
+	})
+}
+
+func TestService_DownSliceFile(t *testing.T) {
+	Convey("GetFileInfo", t, func() {
+		fileInfo, err := GetService().GetPbFileInfoByFid(2261944530632704)
+		So(err, ShouldBeNil)
+		So(fileInfo, ShouldNotBeNil)
+		t.Log(fileInfo)
+		Convey("DownSliceFile", func() {
+			//参数偏移量必须可被1 KB整除。
+			//参数限制必须可被1 KB整除。
+			//限制不得超过1048576（1 MB）。
+			var (
+				buf      bytes.Buffer
+				limit    = int64(1048576)
+				limitEnd = int64(0)
+				offset   = int64(1048576)
+			)
+			num := fileInfo.Size / 1048576
+			if fileInfo.Size%1048576 != 0 {
+				limitEnd = fileInfo.Size % 1048576
+				num++
+			}
+			for i := int64(0); i < num; i++ {
+				var in = &storage.InDownSliceFileItem{
+					Fid:    fileInfo.Fid,
+					Limit:  limit,
+					Offset: offset * i,
+				}
+				if i+1 == num { //最后一片
+					in.Limit = limitEnd
+				}
+				sData, err := GetService().DownSliceFile(in)
+				So(err, ShouldBeNil)
+				So(sData, ShouldNotBeNil)
+				So(len(sData.Data), ShouldNotEqual, 0)
+				buf.Write(sData.Data)
+			}
+			err = ioutil.WriteFile("info.png", buf.Bytes(), 0777)
+			t.Log(buf.Len())
+			So(err, ShouldBeNil)
+			So(buf.Len(), ShouldNotEqual, 0)
+			So(fileInfo.Md5, ShouldEqual, fmt.Sprintf("%x", md5.Sum(buf.Bytes())))
+
+		})
 	})
 }

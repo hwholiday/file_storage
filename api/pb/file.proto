@@ -24,6 +24,17 @@ message InUpSliceFileItem {
   string Md5 = 4; //分片MD5
 }
 
+message InDownSliceFileItem {
+  int64  Fid = 1; //文件ID
+  int64  Limit = 2; //要读多长的数据
+  int64  Offset = 3; //从哪里开始读
+}
+
+message OutDownSliceFileItem {
+  int64  Fid = 1; //文件ID
+  bytes  Data = 2; //读取到的数据
+  string Md5 = 3; //下载块的MD5
+}
 message FileInfo  {
   int64       Fid = 1;       //文件ID
   string      Name = 2;  //文件名
