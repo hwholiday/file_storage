@@ -60,3 +60,7 @@ message ImageEx  {
   int32     ThumbnailWidth = 5;
 }
 
+message InCancelUpload {
+  int64  Fid = 1; //文件ID
+}
+

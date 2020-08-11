@@ -24,6 +24,7 @@ type Service interface {
 	DownSliceFile(in *storage.InDownSliceFileItem) (out *storage.OutDownSliceFileItem, err error)
 	GetPbFileInfoByMd5(md5 string) (fileInfo *storage.FileInfo, err error)
 	GetPbFileInfoByFid(fid int64) (fileInfo *storage.FileInfo, err error)
+	CancelByFid(info *storage.InCancelUpload) (err error)
 }
 
 func NewService(c *conf.Config) {
