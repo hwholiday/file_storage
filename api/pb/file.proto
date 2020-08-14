@@ -12,6 +12,14 @@ message InApplyFid {
   int32  Height = 8; //高 图片文件需要
 }
 
+message InFid{
+  int64  Fid = 1;
+}
+
+message InMd5{
+  string Md5 = 1;
+}
+
 message OutApplyFid {
   int64  Fid = 1;
   int32 Status = 2; //1 不存在   2 等待上传  3 正在上传  4 存在  5 过期
@@ -35,6 +43,14 @@ message OutDownSliceFileItem {
   bytes  Data = 2; //读取到的数据
   string Md5 = 3; //下载块的MD5
 }
+
+message InUpFile{
+  int64  Fid = 1; //文件ID
+  bytes Data = 3; //文件内容
+  string Md5 = 4; //MD5
+}
+
+
 message FileInfo  {
   int64       Fid = 1;       //文件ID
   string      Name = 2;  //文件名

@@ -126,7 +126,7 @@ func (f *FileItem) MergeUp() {
 		return
 	}
 	//上传文件
-	if err := m.r.StorageServer.UpFileNotSlice(f.Fid, f.BucketName, buffer.Bytes()); err != nil {
+	if err := m.r.StorageServer.UpFile(f.Fid, f.BucketName, buffer.Bytes()); err != nil {
 		log.GetLogger().Info("[NewFileItem] MergeUp UpFileNotSlice", zap.Any(f.BucketName, f.Fid))
 		_ = m.r.FileInfoServer.DelFileInfoByFid(f.Fid)
 		return
@@ -157,7 +157,7 @@ func (f *FileItem) UpThumbnail(data []byte) {
 		return
 	}
 	var thumbnailFid = utils.GetSnowFlake().GetId()
-	if err := m.r.StorageServer.UpFileNotSlice(thumbnailFid, f.BucketName, buf.Bytes()); err != nil {
+	if err := m.r.StorageServer.UpFile(thumbnailFid, f.BucketName, buf.Bytes()); err != nil {
 		log.GetLogger().Info("[NewFileItem] MergeUp UpFileNotSlice", zap.Any(f.BucketName, thumbnailFid))
 		return
 	}

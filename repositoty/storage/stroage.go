@@ -10,9 +10,9 @@ type storage struct {
 
 type Service interface {
 	GetFidAndBucketName() (int64, string)
-	UpFileNotSlice(fid int64, bucketName string, data []byte) error
-	GetFileNotSlice(fid int64, bucketName string) ([]byte, error)
+	UpFile(fid int64, bucketName string, data []byte) error
 	GetSliceFile(fid int64, bucketName string, start, end int64) ([]byte, error)
+	GetFile(fid int64, bucketName string) ([]byte, error)
 	DelFile(fid int64, bucketName string) error
 }
 

@@ -20,12 +20,15 @@ func (s *service) ApplyFid(info *storage.InApplyFid) (out *storage.OutApplyFid, 
 	}
 	if !needNew { //代表存在数据,并且上传已经完成
 		log.GetLogger().Debug("[ApplyFid] fid find", zap.Any("out", out))
+		out.Status = conf.FileExists
 		return
 	}
 	//新建文件信息
 	var fInfo = s.convertDataToFileInfo(info)
 	out.Fid = fInfo.Fid
-	s.addApplyFidIntoManager(fInfo)
+	if info.SliceTotal == 1 { //不分片上传文件
+		s.addApplyFidIntoManager(fInfo)
+	}
 	if err = s.r.FileInfoServer.InsertFileInfo(fInfo); err != nil {
 		s.f.DelItem(fInfo.Fid) //插入数据库失败，删除文件管理类
 		log.GetLogger().Info("[ApplyFid] InsertFileInfo", zap.Any("fid", fInfo.Fid))

@@ -1,10 +1,19 @@
 package service
 
-func (s *service) DelFileByFidAndBucketName(fid int64, bucketName string) (err error) {
-	if err = s.r.FileInfoServer.DelFileInfoByFid(fid); err != nil {
+import (
+	"filesrv/entity"
+)
+
+func (s *service) DelFileByFidAndBucketName(fileInfo *entity.FileInfo) (err error) {
+	if err = s.r.FileInfoServer.DelFileInfoByFid(fileInfo.Fid); err != nil {
 		return err
 	}
-	if err = s.r.StorageServer.DelFile(fid, bucketName); err != nil {
+	if fileInfo.ExImage.ThumbnailFid != 0 { //删除
+		if err = s.r.StorageServer.DelFile(fileInfo.ExImage.ThumbnailFid, fileInfo.BucketName); err != nil {
+			return err
+		}
+	}
+	if err = s.r.StorageServer.DelFile(fileInfo.Fid, fileInfo.BucketName); err != nil {
 		return err
 	}
 	return
@@ -20,6 +29,11 @@ func (s *service) DelFileByFid(fid int64) error {
 	}
 	if err = s.r.FileInfoServer.DelFileInfoByFid(fid); err != nil {
 		return err
+	}
+	if fileInfo.ExImage.ThumbnailFid != 0 { //删除
+		if err = s.r.StorageServer.DelFile(fileInfo.ExImage.ThumbnailFid, fileInfo.BucketName); err != nil {
+			return err
+		}
 	}
 	if err = s.r.StorageServer.DelFile(fid, fileInfo.BucketName); err != nil {
 		return err

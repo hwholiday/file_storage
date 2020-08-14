@@ -13,7 +13,7 @@ func (s *service) GetFileInfoByFid(fid int64) (fileInfo *entity.FileInfo, err er
 			if fileInfo.ExpiredTime > 0 && utils.GetTimeUnix() > fileInfo.ExpiredTime {
 				//文件已经过期,删除文件
 				fileInfo.Status = conf.FileExpired
-				go s.DelFileByFidAndBucketName(fid, fileInfo.BucketName)
+				go s.DelFileByFidAndBucketName(fileInfo)
 			}
 		}
 	}
@@ -26,7 +26,7 @@ func (s *service) GetFileInfoByMd5(md5 string) (fileInfo *entity.FileInfo, err e
 			if fileInfo.ExpiredTime > 0 && utils.GetTimeUnix() > fileInfo.ExpiredTime {
 				//文件已经过期,删除文件
 				fileInfo.Status = conf.FileExpired
-				go s.DelFileByFidAndBucketName(fileInfo.Fid, fileInfo.BucketName)
+				go s.DelFileByFidAndBucketName(fileInfo)
 			}
 		}
 	}
