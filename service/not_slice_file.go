@@ -2,11 +2,13 @@ package service
 
 import (
 	"bytes"
+	"crypto/md5"
 	storage "filesrv/api/pb"
 	"filesrv/conf"
 	"filesrv/entity"
 	"filesrv/library/log"
 	"filesrv/library/utils"
+	"fmt"
 	"github.com/disintegration/imaging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.uber.org/zap"
@@ -65,5 +67,33 @@ func (s *service) UpFile(in *storage.InUpFile) (err error) {
 		}
 	}
 	log.GetLogger().Debug("[UpFile]  success", zap.Any(f.BucketName, f.Fid))
+	return
+}
+
+func (s *service) GetFile(fid int64) (out *storage.OutDownFile, err error) {
+	var (
+		fileInfo *entity.FileInfo
+		data     []byte
+	)
+	fileInfo, err = s.GetFileInfoByFid(fid)
+	if err != nil {
+		return
+	}
+	if fileInfo == nil {
+		err = conf.ErrFileIdInvalid
+		return
+	}
+	if fileInfo.Status == conf.FileExpired {
+		err = conf.ErrFileIdInvalid
+		return
+	}
+	data, err = s.r.StorageServer.GetFile(fileInfo.Fid, fileInfo.BucketName)
+	if err != nil {
+		return
+	}
+	out = &storage.OutDownFile{}
+	out.Fid = fid
+	out.Data = data
+	out.Md5 = fmt.Sprintf("%x", md5.Sum(data))
 	return
 }

@@ -24,6 +24,7 @@ type Service interface {
 	GetPbFileInfoByFid(fid int64) (fileInfo *storage.FileInfo, err error)
 	UpSliceFile(in *storage.InUpSliceFileItem) (err error)
 	UpFile(in *storage.InUpFile) (err error)
+	GetFile(fid int64) (out *storage.OutDownFile, err error)
 	DownSliceFile(in *storage.InDownSliceFileItem) (out *storage.OutDownSliceFileItem, err error)
 	CancelByFid(info *storage.InCancelUpload) (err error)
 }

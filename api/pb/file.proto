@@ -44,6 +44,12 @@ message OutDownSliceFileItem {
   string Md5 = 3; //下载块的MD5
 }
 
+message OutDownFile{
+  int64  Fid = 1; //文件ID
+  bytes  Data = 2; //读取到的数据
+  string Md5 = 3;
+}
+
 message InUpFile{
   int64  Fid = 1; //文件ID
   bytes Data = 3; //文件内容
